@@ -35,6 +35,8 @@ table_data['VALOR_UNIT'] = table_data['VALOR_UNIT'].apply(lambda x: "{:.2f}".for
 
 app = dash.Dash(external_stylesheets=[dbc.themes.GRID])
 
+server = app.server
+
 app.layout = dbc.Container([
     dbc.Row(
         [
