@@ -4,7 +4,6 @@ from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
-from sklearn.cluster import KMeans
 import math
 import plotly.graph_objects as go
 
@@ -27,13 +26,18 @@ l_z = list(zip(list_l, list_m))
 table_data = pd.DataFrame()
 
 for dt in range(len(list_data)):
-    table = pd.read_csv(f'https://raw.githubusercontent.com/helderhey/prestadores_pa/main/table_data_{dt}.csv', sep="@", low_memory=False)
+    table = pd.read_csv(
+        f'https://raw.githubusercontent.com/helderhey/prestadores_pa/main/table_data_{dt}.csv', sep="@", low_memory=False)
     table_data = pd.concat([table, table_data])
 
-table_data['VALOR_PAGO'] = table_data['VALOR_PAGO'].apply(lambda x: "{:.2f}".format(x))
-table_data['VALOR_UNIT'] = table_data['VALOR_UNIT'].apply(lambda x: "{:.2f}".format(x))
+table_data['VALOR_PAGO'] = table_data['VALOR_PAGO'].apply(
+    lambda x: "{:.2f}".format(x))
+table_data['VALOR_UNIT'] = table_data['VALOR_UNIT'].apply(
+    lambda x: "{:.2f}".format(x))
 
-app = dash.Dash(external_stylesheets=[dbc.themes.GRID])
+external_stylesheets = [dbc.themes.GRID, 'https://raw.githubusercontent.com/helderhey/prestadores_pa/main/export.css']
+
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server
 
@@ -214,6 +218,7 @@ app.layout = dbc.Container([
                                                        'font-family': 'Arial',
                                                        'font-size': '12px',
                                                        'height': '10px'},
+                                                   cell_selectable=False,
                                                    # fixed_rows={'headers': True, 'data': 0},
                                                    style_data={'width': '50px',
                                                                'maxWidth': '50px',
@@ -256,49 +261,10 @@ def update_graph(select_class):
 
     df_scatter_filt = df_scatter[df_scatter['DESC_CLASSE'] == select_class]
 
-    ax_max = math.ceil(
-        max(max(df_scatter_filt['FREQ_Z']), max(df_scatter_filt['VMU_Z'])))
-    ax_min = math.floor(
-        min(min(df_scatter_filt['FREQ_Z']), min(df_scatter_filt['VMU_Z'])))
-
-    scatter_arr = np.array(
-        [df_scatter_filt['FREQ_Z'], df_scatter_filt['VMU_Z']]).transpose()
-
-    cost = []
-    for i in range(1, scatter_arr[:, 0].size):
-        KM = KMeans(n_clusters=i, max_iter=500)
-        KM.fit(scatter_arr)
-        cost.append(KM.inertia_)
-
-    cst = pd.DataFrame(cost, columns=['cost'])
-    cst['dif'] = -cst['cost'].diff()
-    clusters = cst[cst['dif'] < 1].head(1).index[0]
-
-    kmeans = KMeans(n_clusters=clusters, random_state=42).fit(scatter_arr)
-
-    df_c = pd.DataFrame(scatter_arr, columns=['X', 'Y'])
-    df_c['Labels'] = kmeans.labels_
-
-    cent_X = []
-    cent_Y = []
-
-    for l in kmeans.labels_:
-        cent_X.append(kmeans.cluster_centers_[l][0])
-        cent_Y.append(kmeans.cluster_centers_[l][1])
-
-    df_c['Centroids_X'] = cent_X
-    df_c['Centroids_Y'] = cent_Y
-
-    df_c['dist'] = (abs(df_c['X']-df_c['Centroids_X'])**2 +
-                    abs(df_c['Y']-df_c['Centroids_Y'])**2)**(1/2)
-
-    df_c = df_c.sort_values(['Labels', 'dist'], ascending=[True, False]).groupby(
-        'Labels').head(1).reset_index(drop=True)
-
-    kmeans_1 = KMeans(n_clusters=1, random_state=42).fit(scatter_arr)
-    centroids_1 = kmeans_1.cluster_centers_
-    k1 = centroids_1[0][0]
-    k2 = centroids_1[0][1]
+    k1 = df_scatter_filt['X'].unique()[0]
+    k2 = df_scatter_filt['Y'].unique()[0]
+    ax_max = df_scatter_filt['ax_max'].unique()[0]
+    ax_min = df_scatter_filt['ax_min'].unique()[0]
 
     fig = go.Figure()
 
@@ -330,6 +296,9 @@ def update_graph(select_class):
     fig.add_vline(x=k1, line_width=2, line_dash="dot", line_color="grey")
     fig.add_hline(y=k2, line_width=2, line_dash="dot", line_color="grey")
 
+    df_c = df_scatter_filt.sort_values(['labels', 'dist'], ascending=[True, False]).groupby(
+        'labels').head(1).reset_index(drop=True)
+
     x0 = []
     y0 = []
     x1 = []
@@ -358,14 +327,14 @@ def update_graph(select_class):
                       fillcolor='rgba(0, 0, 0, 0.05)'
                       )
 
-    fig.add_trace(go.Scatter(x=df_scatter_filt['FREQ_Z'],
-                             y=df_scatter_filt['VMU_Z'],
+    fig.add_trace(go.Scatter(x=df_scatter_filt['FREQ_Z_x'],
+                             y=df_scatter_filt['VMU_Z_x'],
                              # text=list(df_indices_anual['NOME_PREST'][df_indices_anual['DESC_CLASSE']
                              #                                                      == cl_df['DESC_CLASSE'].iloc[select_class]]),
                              # textposition='top right',
                              # textfont=dict(color='#E58606'),
                              mode='markers',
-                             marker=dict(size=10, color=kmeans.labels_.astype(
+                             marker=dict(size=10, color=df_scatter_filt['labels'].astype(
                                  float), line=dict(color='black', width=1)),
                              #  marker=dict(size=6, line=dict(color='black', width=1)),
                              hovertemplate='<b>' + \
@@ -422,6 +391,7 @@ def update_graph(select_class):
 
     return fig
 
+
 @app.callback(
     Output('metrica_graph', 'figure'),
     [Input('xaxis-column', 'value'),
@@ -430,13 +400,13 @@ def update_graph_2(classe, metrica):
 
     met_freq = pd.read_csv(
         'https://raw.githubusercontent.com/helderhey/prestadores_pa/main/FREQUENCIA_EVENTO_MES.csv', sep="@", low_memory=False)
-    
+
     met_vmu_benef = pd.read_csv(
         'https://raw.githubusercontent.com/helderhey/prestadores_pa/main/VMU_BENEF_MES.csv', sep="@", low_memory=False)
-    
+
     met_vmu = pd.read_csv(
         'https://raw.githubusercontent.com/helderhey/prestadores_pa/main/VMU_MES.csv', sep="@", low_memory=False)
-    
+
     # select_metrica = pd.read_csv(
     #     f'C:/Users/helde/OneDrive/Trabalho/DIACO/HOSPITAIS/Projeto Final/dados/{metrica}.csv', sep="@", low_memory=False)
 
@@ -534,6 +504,7 @@ def update_graph_2(classe, metrica):
 
     return fig
 
+
 @app.callback(
     [Output("table", "data"), Output('table', 'columns')],
     [Input('xaxis-column', 'value'),
@@ -559,6 +530,7 @@ def update_table(classe, prestador, mes_ano):
     tab_dict = table.to_dict('records'), [
         {"name": i, "id": i} for i in table.columns]
     return tab_dict
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
