@@ -1,0 +1,21 @@
+/* .export {
+    font-size: 0;
+    border-radius: 20px;
+    border-color: blue;
+    background-color: rgba(102, 102, 255, 0.2);
+}
+
+.export:after {
+    content: 'Exportar Dados para Excel';
+    font-size: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+    height: 20px;
+    margin: 20px;
+    padding: 5px;
+}
+
+.dash-spreadsheet-menu {
+    margin: 5px;
+    position: relative;
+    transform: translateX(70%);
+} */
