@@ -35,7 +35,7 @@ table_data['VALOR_PAGO'] = table_data['VALOR_PAGO'].apply(
 table_data['VALOR_UNIT'] = table_data['VALOR_UNIT'].apply(
     lambda x: "{:.2f}".format(x))
 
-external_stylesheets = [dbc.themes.GRID, 'https://raw.githubusercontent.com/helderhey/prestadores_pa/main/export.css']
+external_stylesheets = [dbc.themes.GRID]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
@@ -241,7 +241,7 @@ app.layout = dbc.Container([
                                                        'text-align': 'center',
                                                        'height': 35
                                                    },
-                                                   export_format="xlsx"), ],
+                                                   export_format="xlsx",),],
                     # style={
                     # 'border-style': 'solid',
                     # 'border-color': 'coral'
@@ -391,6 +391,20 @@ def update_graph(select_class):
 
     return fig
 
+list_color = [['STA LUCIA', 'rgb(209,187,215)'],
+              ['AGUAS CLARAS', 'rgb(174,118,163)'],
+              ['HOSP DO CORACAO', 'rgb(136,46,114)'],
+              ['ANCHIETA', 'rgb(25,101,176)'],
+              ['MAT BRASILIA', 'rgb(82,137,199)'],
+              ['PRONTONORTE', 'rgb(123,175,222)'],
+              ['DF STAR', 'rgb(78,178,101)'],
+              ['STA HELENA', 'rgb(144,201,135)'],
+              ['DAHER', 'rgb(202,224,171)'],
+              ['SIRIO LIBANES', 'rgb(247,240,86)'],
+              ['STA LUZIA', 'rgb(246,193,65)'],
+              ['HOME', 'rgb(241,147,45)'],
+              ['BRASILIA', 'rgb(232,96,28)'],
+              ['STA MARTA', 'rgb(220,5,12)']]
 
 @app.callback(
     Output('metrica_graph', 'figure'),
@@ -436,7 +450,8 @@ def update_graph_2(classe, metrica):
 
             fig.add_trace(go.Scatter(x=df_indices_prest['MES_ANO'],
                                      y=df_indices_prest[metrica],
-                                     marker=dict(size=20),
+                                     marker=dict(size=20, color=list_color[select_prest][1], line=dict(
+                                         color='black', width=1)),
                                      name="<b>" +
                                      df_indices_prest['NOME_RESUMIDO'].unique()[
                 0] + "</b>",
