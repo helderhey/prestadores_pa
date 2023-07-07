@@ -19,8 +19,8 @@ select_prest_data = pd.read_csv(
 list_data = pd.read_csv(
     'https://raw.githubusercontent.com/helderhey/prestadores_pa/main/mes_ano.csv', sep="@", low_memory=False)
 list_m = list(list_data['MES_ANO'])
-list_l = ['JULHO/2021', 'AGOSTO/2021', 'SETEMBRO/2021', 'OUTUBRO/2021', 'NOVEMBRO/2021', 'DEZEMBRO/2021',
-          'JANEIRO/2022', 'FEVEREIRO/2022', 'MARÇO/2022', 'ABRIL/2022', 'MAIO/2022', 'JUNHO/2022']
+list_l = ['JULHO/2022', 'AGOSTO/2022', 'SETEMBRO/2022', 'OUTUBRO/2022', 'NOVEMBRO/2022', 'DEZEMBRO/2022',
+          'JANEIRO/2023', 'FEVEREIRO/2023', 'MARÇO/2023', 'ABRIL/2023', 'MAIO/2023', 'JUNHO/2023']
 l_z = list(zip(list_l, list_m))
 
 table_data = pd.DataFrame()
@@ -391,20 +391,20 @@ def update_graph(select_class):
 
     return fig
 
-list_color = [['STA LUCIA', 'rgb(209,187,215)'],
-              ['AGUAS CLARAS', 'rgb(174,118,163)'],
+list_color = [["STA HELENA (D'OR)", 'rgb(209,187,215)'],
+              ['MARIA AUXILIADORA', 'rgb(174,118,163)'],
               ['HOSP DO CORACAO', 'rgb(136,46,114)'],
               ['ANCHIETA', 'rgb(25,101,176)'],
               ['MAT BRASILIA', 'rgb(82,137,199)'],
               ['PRONTONORTE', 'rgb(123,175,222)'],
               ['DF STAR', 'rgb(78,178,101)'],
-              ['STA HELENA', 'rgb(144,201,135)'],
+              ['STA LUCIA', 'rgb(144,201,135)'],
               ['DAHER', 'rgb(202,224,171)'],
               ['SIRIO LIBANES', 'rgb(247,240,86)'],
               ['STA LUZIA', 'rgb(246,193,65)'],
               ['HOME', 'rgb(241,147,45)'],
               ['BRASILIA', 'rgb(232,96,28)'],
-              ['STA MARTA', 'rgb(220,5,12)']]
+              ['AGUAS CLARAS', 'rgb(220,5,12)']]
 
 @app.callback(
     Output('metrica_graph', 'figure'),
@@ -498,9 +498,9 @@ def update_graph_2(classe, metrica):
                     # tickvals=list(np.datetime_as_string(
                     #     df_f_filt['MES_ANO'].sort_values().unique(), unit='D')),
                     tickvals=list(df_f_filt['MES_ANO'].sort_values().unique()),
-                    ticktext=['<b>Jul<br>2021</b>', '<b>Ago<br>2021</b>', '<b>Set<br>2021</b>', '<b>Out<br>2021</b>',
-                              '<b>Nov<br>2021</b>', '<b>Dez<br>2021</b>', '<b>Jan<br>2022</b>', '<b>Fev<br>2022</b>',
-                              '<b>Mar<br>2022</b>', '<b>Abr<br>2022</b>', '<b>Mai<br>2022</b>', '<b>Jun<br>2022</b>'],
+                    ticktext=['<b>Jul<br>2022</b>', '<b>Ago<br>2022</b>', '<b>Set<br>2022</b>', '<b>Out<br>2022</b>',
+                              '<b>Nov<br>2022</b>', '<b>Dez<br>2022</b>', '<b>Jan<br>2023</b>', '<b>Fev<br>2023</b>',
+                              '<b>Mar<br>2023</b>', '<b>Abr<br>2023</b>', '<b>Mai<br>2023</b>', '<b>Jun<br>2023</b>'],
                     showgrid=False,
                     zeroline=False,
                     showline=True,
